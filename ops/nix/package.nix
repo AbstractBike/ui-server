@@ -13,7 +13,7 @@ buildGoModule {
   modRoot = ".";
   subPackages = [ "cmd/server" ];
 
-  vendorHash = lib.fakeHash;
+  vendorHash = "sha256-fKf039QYD7WgWT3JYr7ZaMyYSjUsY4DRo/Ral1Bu9Xw=";
 
   env.CGO_ENABLED = "0";
 
