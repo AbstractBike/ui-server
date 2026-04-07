@@ -1,0 +1,71 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_VICTORIAMETRICS",
+      "label": "VictoriaMetrics",
+      "type": "datasource",
+      "pluginId": "prometheus"
+    }
+  ],
+  "title": "ui-server",
+  "uid": "ui-server-dashboard",
+  "version": 1,
+  "schemaVersion": 38,
+  "tags": ["ui-server", "abstractbike"],
+  "time": { "from": "now-1h", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Service Status",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "targets": [
+        {
+          "expr": "up{job=\"ui-server\"}",
+          "legendFormat": "up"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "thresholds": {
+          "steps": [
+            { "value": 0, "color": "red" },
+            { "value": 1, "color": "green" }
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Request Rate",
+      "gridPos": { "x": 4, "y": 0, "w": 10, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{job=\"ui-server\"}[5m])",
+          "legendFormat": "{{ status }}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "p99 Latency",
+      "gridPos": { "x": 14, "y": 0, "w": 10, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_VICTORIAMETRICS}" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"ui-server\"}[5m]))",
+          "legendFormat": "p99"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"ui-server\"}[5m]))",
+          "legendFormat": "p50"
+        }
+      ]
+    }
+  ]
+}

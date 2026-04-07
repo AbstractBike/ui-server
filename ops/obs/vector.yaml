@@ -1,0 +1,26 @@
+# Vector log pipeline for ui-server.
+# Journald logs are picked up automatically by otelcol's journald receiver.
+# Only add entries here for file-based log sources.
+
+sources:
+  # Uncomment for file-based logs:
+  # ui-server_logs:
+  #   type: file
+  #   include:
+  #     - /var/lib/ui-server/logs/*.log
+  #   read_from: beginning
+
+transforms:
+  ui-server_parse:
+    type: remap
+    inputs: []  # add sources above
+    source: |
+      .service = "ui-server"
+      # parse JSON logs:
+      # . = parse_json!(.message)
+      # add host label:
+      .host = get_hostname!()
+
+sinks:
+  # ui-server logs go to VictoriaLogs via the shared otelcol pipeline
+  # No explicit sink needed if using journald receiver

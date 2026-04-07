@@ -1,0 +1,35 @@
+groups:
+  - name: ui-server
+    rules:
+      - alert: UiServerDown
+        expr: up{job="ui-server"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: ui-server
+        annotations:
+          summary: "ui-server is down"
+          description: "The ui-server service has been unreachable for 5 minutes."
+
+      - alert: UiServerHighErrorRate
+        expr: |
+          rate(http_requests_total{job="ui-server",status=~"5.."}[5m])
+          / rate(http_requests_total{job="ui-server"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: ui-server
+        annotations:
+          summary: "ui-server error rate above 5%"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      - alert: UiServerHighLatency
+        expr: |
+          histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="ui-server"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: ui-server
+        annotations:
+          summary: "ui-server p99 latency above 1s"
+          description: "p99 latency is {{ $value | humanizeDuration }}."
